@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Dataset Processor</title>
+</head>
+
+<body>
+
+<h2>CSV Dataset Processor</h2>
+
+<input type="file" id="fileInput"><br><br>
+
+<input type="text" id="keyword" placeholder="Keyword for MP14">
+
+<br><br>
+
+<button onclick="displayTable()">MP12 - Display Table</button>
+<button onclick="detectMissing()">MP13 - Detect Missing</button>
+<button onclick="countKeyword()">MP14 - Count Keyword</button>
+
+<pre id="output"></pre>
+
+<script>
+
+let csvData = [];
+
+document.getElementById("fileInput").addEventListener("change", function(event){
+
+const file = event.target.files[0];
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+csvData = e.target.result.split("\n");
+
+};
+
+reader.readAsText(file);
+
+});
+
+
+function displayTable(){
+
+let output = "";
+
+csvData.forEach(row => {
+
+let columns = row.split(",");
+
+columns.forEach(col => {
+
+output += col.padEnd(25," ");
+
+});
+
+output += "\n";
+
+});
+
+document.getElementById("output").textContent = output;
+
+}
+
+
+function detectMissing(){
+
+let output = "";
+
+csvData.forEach((row,index)=>{
+
+let columns = row.split(",");
+
+if(columns.some(col => col.trim()==="")){
+
+output += "Missing value at row " + (index+1) + "\n";
+
+}
+
+});
+
+document.getElementById("output").textContent = output;
+
+}
+
+
+function countKeyword(){
+
+let keyword = document.getElementById("keyword").value.toLowerCase();
+
+let count = 0;
+
+csvData.forEach(row=>{
+
+if(row.toLowerCase().includes(keyword)){
+
+count++;
+
+}
+
+});
+
+document.getElementById("output").textContent = 
+"Keyword '"+keyword+"' found "+count+" times.";
+
+}
+
+</script>
+
+</body>
+
+</html>
