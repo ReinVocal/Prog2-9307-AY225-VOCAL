@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>📊 Critic Score Analyzer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    /* Retro pixel font */
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: black;
+      color: limegreen;
+      text-align: center;
+      margin: 0;
+    }
+
+    h2 {
+      color: yellow;
+      text-shadow: 2px 2px red;
+      margin-top: 20px;
+    }
+
+    #fileInput, button {
+      font-family: 'Press Start 2P', cursive;
+      margin: 10px;
+      padding: 10px;
+      background: darkblue;
+      color: white;
+      border: 2px solid cyan;
+      cursor: pointer;
+    }
+
+    /* Scrollable output box */
+    #output {
+      white-space: pre-wrap;
+      text-align: left;
+      margin: 20px auto;
+      width: 80%;
+      height: 300px;          /* fixed height */
+      overflow-y: scroll;     /* adds scrollbar */
+      background: rgba(0,0,0,0.8);
+      border: 2px solid limegreen;
+      padding: 15px;
+    }
+
+    /* ASCII animation */
+    .ascii {
+      font-size: 12px;
+      color: cyan;
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <h2>📊 Critic Score Analyzer</h2>
+  <p class="ascii">=== INSERT COIN ===</p>
+
+  <input type="file" id="fileInput" accept=".csv">
+  <button onclick="processFile()">Analyze</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    function processFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("❌ Please select a CSV file.");
+        return;
+      }
+
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+          const data = results.data;
+          const consoleScores = {};
+
+          data.forEach(row => {
+            const console = row.console;
+            const score = row.critic_score;
+
+            if (console && typeof score === "number") {
+              if (!consoleScores[console]) {
+                consoleScores[console] = { total: 0, count: 0 };
+              }
+              consoleScores[console].total += score;
+              consoleScores[console].count += 1;
+            }
+          });
+
+          let outputText = "📊 Average Critic Score per Console:\n";
+          let bestConsole = null;
+          let bestAvg = -Infinity;
+
+          for (const console in consoleScores) {
+            const avg = consoleScores[console].total / consoleScores[console].count;
+            outputText += `${console}: ${avg.toFixed(2)}\n`;
+            if (avg > bestAvg) {
+              bestAvg = avg;
+              bestConsole = console;
+            }
+          }
+
+          outputText += `\n🏆 Best Console: ${bestConsole} with average score ${bestAvg.toFixed(2)}`;
+          document.getElementById('output').textContent = outputText;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
